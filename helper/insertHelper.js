@@ -30,7 +30,7 @@
  * Created Date: Saturday, May 17th 2025, 1:32:16 pm                           *
  * Author: Prakersh Arya <prakersharya@codestax.ai>                            *
  * -----                                                                       *
- * Last Modified: May 17th 2025, 3:51:12 pm                                    *
+ * Last Modified: June 21st 2025, 1:49:18 pm                                   *
  * Modified By: Prakersh Arya                                                  *
  * -----                                                                       *
  * Any app that can be written in JavaScript,                                  *
@@ -43,11 +43,14 @@
 
 const userHelper = require('./userHelper');
 const { configObject } = require('../config');
+const programHelper = require('./programHelper');
 class InsertHelper {
 
     routeRequestToHelper(image) {
         if (image.tableName == configObject.USER_TABLE.tableName) {
             return userHelper.getRecord(image);
+        } else if (image.tableName == configObject.PROGRAM_TABLE.tableName) {
+            return programHelper.getRecord(image);
         }
     }
 
