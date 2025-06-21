@@ -1,29 +1,142 @@
 {
     "Records": [
-      {
-        "eventID": "1",
-        "eventName": "INSERT",
-        "eventVersion": "1.1",
-        "eventSource": "aws:dynamodb",
-        "awsRegion": "ap-south-1",
-        "eventSourceARN": "arn:aws:dynamodb:ap-south-1:123456789012:table/identifyMeUserTable/stream/2025-05-17T12:34:56.789",
-        "dynamodb": {
-          "Keys": {
-            "pk": { "S": "user#123" },
-            "sk": { "S": "MENTOR"}
-          },
-          "NewImage": {
-            "pk": { "S": "user#123" },
-            "sk": { "S": "MENTOR"},
-            "firstName": { "S": "John Doe" },
-            "lastName": { "S": "Doe" },
-            "profilePicture": {"S": "https://kuldeep.com" }
-          },
-          "SequenceNumber": "111",
-          "SizeBytes": 26,
-          "StreamViewType": "NEW_AND_OLD_IMAGES"
+        {
+            "eventID": "1",
+            "eventName": "INSERT",
+            "eventVersion": "1.1",
+            "eventSource": "aws:dynamodb",
+            "awsRegion": "ap-south-1",
+            "eventSourceARN": "arn:aws:dynamodb:ap-south-1:123456789012:table/identifyMeUserTable/stream/2025-05-17T12:34:56.789",
+            "dynamodb": {
+                "Keys": {
+                    "pk": {
+                        "S": "user#123"
+                    },
+                    "sk": {
+                        "S": "MENTOR"
+                    }
+                },
+                "NewImage": {
+                    "pk": {
+                        "S": "user#123"
+                    },
+                    "sk": {
+                        "S": "MENTOR"
+                    },
+                    "firstName": {
+                        "S": "John Doe"
+                    },
+                    "lastName": {
+                        "S": "Doe"
+                    },
+                    "profilePicture": {
+                        "S": "https://kuldeep.com"
+                    }
+                },
+                "SequenceNumber": "111",
+                "SizeBytes": 26,
+                "StreamViewType": "NEW_AND_OLD_IMAGES"
+            }
+        },
+        {
+            "eventID": "1",
+            "eventName": "INSERT",
+            "eventVersion": "1.1",
+            "eventSource": "aws:dynamodb",
+            "awsRegion": "ap-south-1",
+            "eventSourceARN": "arn:aws:dynamodb:ap-south-1:123456789012:table/identifyMeProgramTable/stream/2025-05-17T12:34:56.789",
+            "dynamodb": {
+                "Keys": {
+                    "pk": {
+                        "S": "d16a0c1a-6749-4de1-8c54-b7bb9b9cf2cd"
+                    },
+                    "sk": {
+                        "S": "PROGRAM#002712"
+                    }
+                },
+                "NewImage": {
+                    "pk": {
+                        "S": "d16a0c1a-6749-4de1-8c54-b7bb9b9cf2cd"
+                    },
+                    "sk": {
+                        "S": "PROGRAM#002712"
+                    },
+                    "benefits": {
+                        "S": "exploringgg"
+                    },
+                    "createdAt": {
+                        "N": "1741881035250"
+                    },
+                    "days": {
+                        "L": [
+                            {
+                                "S": "MON"
+                            },
+                            {
+                                "S": "FRI"
+                            }
+                        ]
+                    },
+                    "description": {
+                        "S": "tEstttt"
+                    },
+                    "durationUnit": {
+                        "S": "MONTH"
+                    },
+                    "durationValue": {
+                        "N": "1"
+                    },
+                    "endDate": {
+                        "S": "20250414"
+                    },
+                    "endTime": {
+                        "S": "11:20"
+                    },
+                    "participants": {
+                        "L": [
+                            {
+                                "S": "12123431312"
+                            },
+                            {
+                                "S": "1234123"
+                            }
+                        ]
+                    },
+                    "participantScore": {
+                        "M": {}
+                    },
+                    "programID": {
+                        "S": "002712"
+                    },
+                    "programName": {
+                        "S": "kuldeep"
+                    },
+                    "programURL": {
+                        "S": "documents/programme//null/1741880987028_Screenshot_2025.02.02_17.15.07.812.png"
+                    },
+                    "startDate": {
+                        "S": "20250314"
+                    },
+                    "startTime": {
+                        "S": "10:20"
+                    },
+                    "status": {
+                        "S": "DELETED"
+                    },
+                    "type": {
+                        "S": "PROGRAM"
+                    },
+                    "updatedAt": {
+                        "N": "1742887228290"
+                    },
+                    "userID": {
+                        "S": "d16a0c1a-6749-4de1-8c54-b7bb9b9cf2cd"
+                    }
+                },
+                "SequenceNumber": "111",
+                "SizeBytes": 26,
+                "StreamViewType": "NEW_AND_OLD_IMAGES"
+            }
         }
-      }
     ]
-  }
-  
+}
