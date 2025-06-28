@@ -70,7 +70,9 @@ class UserHelper {
     generateMenteeData(dynamoDBRecord) {
         let obj = {};
         let objectID = '';
-        objectID = encryptData({
+        let dataAddress = '';
+        objectID = generateSHA256Hash(dynamoDBRecord.pk + dynamoDBRecord.sk);
+        dataAddress = encryptData({
             pk: dynamoDBRecord.pk,
             sk: dynamoDBRecord.sk,
             tableName: dynamoDBRecord.tableName
@@ -79,7 +81,8 @@ class UserHelper {
             fullName: dynamoDBRecord.firstName + dynamoDBRecord.lastName,
             userType: 'MENTEE',
             profilePicture: dynamoDBRecord.profilePicture,
-            objectID
+            objectID,
+            dataAddress
         }
         return obj;
     }

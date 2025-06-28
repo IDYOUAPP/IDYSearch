@@ -1,0 +1,19 @@
+service: identifyou-searchstream-processor
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: ap-south-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:DescribeStream
+        - dynamodb:GetRecords
+        - dynamodb:GetShardIterator
+        - dynamodb:ListStreams
+      Resource: "*"
+
+functions:
+  streamProcessor:
+    handler: index.handler
+    # No 'events:' block here — so no stream mapping is deployed
