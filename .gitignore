@@ -1,1 +1,6 @@
-node_modules
+node_modules/
+serverless/
+.serverless/
+coverage/*
+.vscode/*
+package-lock.json/
