@@ -30,7 +30,7 @@
  * Created Date: Saturday, May 17th 2025, 1:10:32 pm                           *
  * Author: Prakersh Arya <prakersharya@codestax.ai>                            *
  * -----                                                                       *
- * Last Modified: May 17th 2025, 3:51:54 pm                                    *
+ * Last Modified: June 21st 2025, 1:35:45 pm                                   *
  * Modified By: Prakersh Arya                                                  *
  * -----                                                                       *
  * Any app that can be written in JavaScript,                                  *
@@ -48,7 +48,7 @@ class ProgramHelper {
     constructor() {
         this.algoliaIndex = configObject.PROGRAM_TABLE.indexValue;
     }
-    generateMentorData(dynamoDBRecord) {
+    generateProgramData(dynamoDBRecord) {
         let obj = {}; let dataAddress = {};
         let objectID = '';
         objectID = generateSHA256Hash(dynamoDBRecord.pk + dynamoDBRecord.sk);
@@ -58,38 +58,23 @@ class ProgramHelper {
             tableName: dynamoDBRecord.tableName
         });
         obj = {
-            fullName: dynamoDBRecord.firstName + dynamoDBRecord.lastName,
-            userType: 'MENTOR',
-            profilePicture: dynamoDBRecord.profilePicture,
+            programName: dynamoDBRecord.programName,
+            recordType: 'PROGRAM',
+            programURL: dynamoDBRecord.programURL,
+            status: dynamoDBRecord.status,
+            programID: dynamoDBRecord.programID,
+            userID: dynamoDBRecord.userID,
+            createdAt: dynamoDBRecord.createdAt,
             objectID,
-            dataAddress
-        }
-        return obj;
-    }
-
-    generateMenteeData(dynamoDBRecord) {
-        let obj = {};
-        let objectID = '';
-        objectID = encryptData({
-            pk: dynamoDBRecord.pk,
-            sk: dynamoDBRecord.sk,
-            tableName: dynamoDBRecord.tableName
-        });
-        obj = {
-            fullName: dynamoDBRecord.firstName + dynamoDBRecord.lastName,
-            userType: 'MENTEE',
-            profilePicture: dynamoDBRecord.profilePicture,
-            objectID
+            dataAddress,
         }
         return obj;
     }
 
     getRecord(dynamoDBRecord) {
         let algoliaDocument = {};
-        if (dynamoDBRecord.sk == 'MENTOR') {
-            algoliaDocument = this.generateMentorData(dynamoDBRecord);
-        } else if (dynamoDBRecord.sk == 'MENTEE') {
-            algoliaDocument = this.generateMenteeData(dynamoDBRecord);
+        if (dynamoDBRecord.type == 'PROGRAM') {
+            algoliaDocument = this.generateProgramData(dynamoDBRecord);
         }
         return {
             algoliaItem: algoliaDocument,

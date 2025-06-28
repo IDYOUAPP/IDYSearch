@@ -30,7 +30,7 @@
  * Created Date: Saturday, May 17th 2025, 1:51:18 pm                           *
  * Author: Prakersh Arya <prakersharya@codestax.ai>                            *
  * -----                                                                       *
- * Last Modified: May 17th 2025, 3:46:49 pm                                    *
+ * Last Modified: June 21st 2025, 1:57:39 pm                                   *
  * Modified By: Prakersh Arya                                                  *
  * -----                                                                       *
  * Any app that can be written in JavaScript,                                  *
@@ -71,6 +71,28 @@ class AlgoliaHelper {
         });
         await Promise.all(allPromise);
     }
-}
 
+    async deleteRecords(allRecords) {
+        const algoliaData = {
+            [configObject.USER_TABLE.indexValue]: [],
+            [configObject.PROGRAM_TABLE.indexValue]: []
+        };
+
+        allRecords.forEach(element => {
+            // Expecting `objectID` field in algoliaItem
+            if (element?.algoliaIndex && element?.algoliaItem?.objectID) {
+                algoliaData[element.algoliaIndex].push(element.algoliaItem.objectID);
+            }
+        });
+        const allPromise = [];
+        Object.keys(algoliaData).forEach((key) => {
+            if (algoliaData[key].length > 0) {
+                console.log(`Deleting from index ${key}:`, algoliaData[key]);
+                const index = this.algoliaClient.initIndex(key);
+                allPromise.push(index.deleteObjects(algoliaData[key]));
+            }
+        });
+        await Promise.all(allPromise);
+    }
+}
 module.exports = new AlgoliaHelper();

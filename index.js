@@ -30,7 +30,7 @@
  * Created Date: Saturday, May 17th 2025, 1:09:39 pm                           *
  * Author: Prakersh Arya <prakersharya@codestax.ai>                            *
  * -----                                                                       *
- * Last Modified: May 17th 2025, 3:12:41 pm                                    *
+ * Last Modified: June 21st 2025, 1:48:13 pm                                   *
  * Modified By: Prakersh Arya                                                  *
  * -----                                                                       *
  * Any app that can be written in JavaScript,                                  *
@@ -71,7 +71,6 @@ const handler = async (event) => {
         switch (eventName) {
           case "INSERT":
           case "MODIFY":
-            console.log('here', newImage)
             algoliaItem['INSERT'].push(InsertHelper.routeRequestToHelper(newImage));
             break;
           case "REMOVE":
@@ -84,7 +83,7 @@ const handler = async (event) => {
     }
 
     await algoliaHelper.insertRecord(algoliaItem['INSERT']);
-  
+
     return { statusCode: 200 };
   };
   
