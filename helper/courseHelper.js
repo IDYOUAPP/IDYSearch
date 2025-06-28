@@ -1,13 +1,12 @@
 
-
 const { configObject } = require("../config");
 const { encryptData, generateSHA256Hash } = require("./encryptionHelper");
 
-class ProgramHelper {
+class CourseHelper {
     constructor() {
-        this.algoliaIndex = configObject.PROGRAM_TABLE.indexValue;
+        this.algoliaIndex = configObject.COURSE_TABLE.indexValue;
     }
-    generateProgramData(dynamoDBRecord) {
+    generateCourseData(dynamoDBRecord) {
         let obj = {}; let dataAddress = {};
         let objectID = '';
         objectID = generateSHA256Hash(dynamoDBRecord.pk + dynamoDBRecord.sk);
@@ -17,12 +16,11 @@ class ProgramHelper {
             tableName: dynamoDBRecord.tableName
         });
         obj = {
-            programName: dynamoDBRecord.programName,
-            recordType: 'PROGRAM',
-            programURL: dynamoDBRecord.programURL,
+            courseName: dynamoDBRecord.courseName,
+            recordType: 'COURSE',
+            imageURL: dynamoDBRecord.imageUrl,
             status: dynamoDBRecord.status,
-            programID: dynamoDBRecord.programID,
-            userID: dynamoDBRecord.userID,
+            courseID: dynamoDBRecord.courseId,
             createdAt: dynamoDBRecord.createdAt,
             objectID,
             dataAddress,
@@ -32,8 +30,8 @@ class ProgramHelper {
 
     getRecord(dynamoDBRecord) {
         let algoliaDocument = {};
-        if (dynamoDBRecord.type == 'PROGRAM') {
-            algoliaDocument = this.generateProgramData(dynamoDBRecord);
+        if (dynamoDBRecord.type == 'COURSE') {
+            algoliaDocument = this.generateCourseData(dynamoDBRecord);
         }
         return {
             algoliaItem: algoliaDocument,
@@ -42,4 +40,4 @@ class ProgramHelper {
     }
 }
 
-module.exports = new ProgramHelper();
+module.exports = new CourseHelper();
