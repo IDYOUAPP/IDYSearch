@@ -30,7 +30,7 @@
  * Created Date: Saturday, May 17th 2025, 3:39:54 pm                           *
  * Author: Prakersh Arya <prakersharya@codestax.ai>                            *
  * -----                                                                       *
- * Last Modified: May 17th 2025, 3:43:37 pm                                    *
+ * Last Modified: June 21st 2025, 1:34:43 pm                                   *
  * Modified By: Prakersh Arya                                                  *
  * -----                                                                       *
  * Any app that can be written in JavaScript,                                  *
@@ -44,11 +44,11 @@
 const configObject = {
     "USER_TABLE": {
         "tableName": "identifyMeUserTable",
-        "indexValue": "USER"
+        "indexValue": "GLOBAL"
     },
     "PROGRAM_TABLE": {
         "tableName": "identifyMeProgramTable",
-        "indexValue": "PROGRAM"
+        "indexValue": "GLOBAL"
     }
 }
 
