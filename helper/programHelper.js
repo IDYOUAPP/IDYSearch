@@ -35,6 +35,10 @@ class ProgramHelper {
         if (dynamoDBRecord.type == 'PROGRAM') {
             algoliaDocument = this.generateProgramData(dynamoDBRecord);
         }
+        else {
+            console.error(`Record type not matched. Unexpected type: '${dynamoDBRecord.type}'`, dynamoDBRecord);
+            return null;
+        }
         return {
             algoliaItem: algoliaDocument,
             algoliaIndex: this.algoliaIndex

@@ -33,6 +33,11 @@ class CourseHelper {
         if (dynamoDBRecord.type == 'COURSE') {
             algoliaDocument = this.generateCourseData(dynamoDBRecord);
         }
+        else {
+            console.error(`Record type not matched. Unexpected type: '${dynamoDBRecord.type}'`, dynamoDBRecord);
+            return null;
+        }
+
         return {
             algoliaItem: algoliaDocument,
             algoliaIndex: this.algoliaIndex

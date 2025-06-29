@@ -5,45 +5,63 @@ const InsertHelper = require('./helper/insertHelper');
 const algoliaHelper = require('./helper/algoliaHelper');
 
 const handler = async (event) => {
-  console.log('came', event)
-  let algoliaItem = {
-    'INSERT': [],
-    'DELETE': []
+  console.log('Received event:', JSON.stringify(event, null, 2));
+
+  const algoliaItem = {
+    INSERT: [],
+    DELETE: []
   };
+
   for (const record of event.Records) {
+    const { eventName, eventSourceARN, dynamodb } = record;
 
+    const tableName = eventSourceARN.split('/')[1];
+    const newImage = dynamodb.NewImage ? unmarshall(dynamodb.NewImage) : null;
+    const oldImage = dynamodb.OldImage ? unmarshall(dynamodb.OldImage) : null;
 
-    const eventName = record.eventName;
-    const arn = record.eventSourceARN;
-    const tableName = arn.split('/')[1];
-    const newImage = record.dynamodb.NewImage
-      ? unmarshall(record.dynamodb.NewImage)
-      : {};
-    const oldImage = record.dynamodb.OldImage
-      ? unmarshall(record.dynamodb.OldImage)
-      : {};
-
-    newImage['tableName'] = tableName;
-    oldImage['tableName'] = tableName;
+    if (newImage) newImage.tableName = tableName;
+    if (oldImage) oldImage.tableName = tableName;
 
     try {
       switch (eventName) {
         case "INSERT":
         case "MODIFY":
-          algoliaItem['INSERT'].push(InsertHelper.routeRequestToHelper(newImage));
+          if (newImage) {
+            const insertPayload = InsertHelper.routeRequestToHelper(newImage);
+            if (insertPayload) algoliaItem.INSERT.push(insertPayload);
+          }
           break;
+
         case "REMOVE":
-          algoliaItem['DELETE'].push(InsertHelper.routeRequestToHelper(oldImage));
+          if (oldImage) {
+            const deletePayload = InsertHelper.routeRequestToHelper(oldImage);
+            if (deletePayload) algoliaItem.DELETE.push(deletePayload);
+          }
           break;
+
+        default:
+          console.warn(`Unsupported event type: ${eventName}`);
       }
     } catch (error) {
       console.error(`Algolia sync failed for event ${eventName}:`, error);
     }
   }
 
-  await algoliaHelper.insertRecord(algoliaItem['INSERT']);
+  // Sync with Algolia
+  try {
+    if (algoliaItem.INSERT.length > 0) {
+      await algoliaHelper.insertRecord(algoliaItem.INSERT);
+    }
 
-  return { statusCode: 200 };
+    if (algoliaItem.DELETE.length > 0) {
+      await algoliaHelper.deleteRecords(algoliaItem.DELETE);
+    }
+  } catch (error) {
+    console.error("Algolia operation failed:", error);
+    return { statusCode: 500, body: "Failed to sync with Algolia." };
+  }
+
+  return { statusCode: 200, body: "Sync successful." };
 };
 
-module.exports = { handler }
+module.exports = { handler };
