@@ -18,7 +18,7 @@ class UserHelper {
         });
         obj = {
             fullName: dynamoDBRecord.firstName + dynamoDBRecord.lastName,
-            userType: 'MENTOR',
+            recordType: 'MENTOR',
             profilePicture: dynamoDBRecord.profilePicture,
             objectID,
             dataAddress
@@ -38,8 +38,8 @@ class UserHelper {
         });
         obj = {
             fullName: dynamoDBRecord.firstName + dynamoDBRecord.lastName,
-            userType: 'MENTEE',
-            profilePicture: dynamoDBRecord.profilePicture,
+            recordType: 'MENTEE',
+            profilePicture: dynamoDBRecord.profileUrl,
             objectID,
             dataAddress
         }
@@ -48,16 +48,21 @@ class UserHelper {
 
     getRecord(dynamoDBRecord) {
         let algoliaDocument = {};
-        if (dynamoDBRecord.sk == 'MENTOR') {
+        if (dynamoDBRecord.sk === 'MENTOR') {
             algoliaDocument = this.generateMentorData(dynamoDBRecord);
-        } else if (dynamoDBRecord.sk == 'MENTEE') {
+        } else if (dynamoDBRecord.sk === 'MENTEE') {
             algoliaDocument = this.generateMenteeData(dynamoDBRecord);
+        } else {
+            console.error(`Record type not matched. Unexpected sk: '${dynamoDBRecord.sk}'`, dynamoDBRecord);
+            return null;
         }
+
         return {
             algoliaItem: algoliaDocument,
             algoliaIndex: this.algoliaIndex
         };
     }
+
 }
 
 module.exports = new UserHelper();
