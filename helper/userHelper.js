@@ -30,7 +30,7 @@
  * Created Date: Saturday, May 17th 2025, 1:10:32 pm                           *
  * Author: Prakersh Arya <prakersharya@codestax.ai>                            *
  * -----                                                                       *
- * Last Modified: May 17th 2025, 3:45:36 pm                                    *
+ * Last Modified: July 13th 2025, 6:48:26 pm                                   *
  * Modified By: Prakersh Arya                                                  *
  * -----                                                                       *
  * Any app that can be written in JavaScript,                                  *
@@ -66,7 +66,26 @@ class UserHelper {
         }
         return obj;
     }
-
+    generateMentorDataSendBird(dynamoDBRecord) {
+        let obj = {
+            "user_id": dynamoDBRecord.userID,
+            "nickname": dynamoDBRecord.firstName + dynamoDBRecord.lastName,
+            "profile_url": 'https://d5vpufo3bs1dw.cloudfront.net/' + dynamoDBRecord.profilePicture,
+            // "issue_access_token": true,
+            // "session_token_expires_at": 1542945056625,
+        }
+        return obj;
+    }
+    generateMenteeDataSendBird(dynamoDBRecord) {
+        let obj = {
+            "user_id": dynamoDBRecord.menteeId,
+            "nickname": dynamoDBRecord.firstName + dynamoDBRecord.lastName,
+            "profile_url": 'https://d5vpufo3bs1dw.cloudfront.net/' + dynamoDBRecord.profileUrl,
+            // "issue_access_token": true,
+            // "session_token_expires_at": 1542945056625,
+        }
+        return obj;
+    }
     generateMenteeData(dynamoDBRecord) {
         let obj = {};
         let objectID = '';
@@ -94,6 +113,18 @@ class UserHelper {
         return {
             algoliaItem: algoliaDocument,
             algoliaIndex: this.algoliaIndex
+        };
+    }
+
+    getSendBirdRecord(dynamoDBRecord) {
+        let sendBirdDocument = {};
+        if (dynamoDBRecord.sk == 'MENTOR') {
+            sendBirdDocument = this.generateMentorDataSendBird(dynamoDBRecord);
+        } else if (dynamoDBRecord.sk == 'MENTEE') {
+            sendBirdDocument = this.generateMenteeDataSendBird(dynamoDBRecord);
+        }
+        return {
+            sendBirdItem: sendBirdDocument,
         };
     }
 }

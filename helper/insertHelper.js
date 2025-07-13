@@ -30,7 +30,7 @@
  * Created Date: Saturday, May 17th 2025, 1:32:16 pm                           *
  * Author: Prakersh Arya <prakersharya@codestax.ai>                            *
  * -----                                                                       *
- * Last Modified: June 21st 2025, 1:49:18 pm                                   *
+ * Last Modified: July 13th 2025, 6:27:06 pm                                   *
  * Modified By: Prakersh Arya                                                  *
  * -----                                                                       *
  * Any app that can be written in JavaScript,                                  *
@@ -49,6 +49,13 @@ class InsertHelper {
     routeRequestToHelper(image) {
         if (image.tableName == configObject.USER_TABLE.tableName) {
             return userHelper.getRecord(image);
+        } else if (image.tableName == configObject.PROGRAM_TABLE.tableName) {
+            return programHelper.getRecord(image);
+        }
+    }
+    routeRequestToSendBirdHelper(image) {
+        if (image.tableName == configObject.USER_TABLE.tableName) {
+            return userHelper.getSendBirdRecord(image);
         } else if (image.tableName == configObject.PROGRAM_TABLE.tableName) {
             return programHelper.getRecord(image);
         }
