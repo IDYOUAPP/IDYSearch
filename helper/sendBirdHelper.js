@@ -30,7 +30,7 @@
  * Created Date: Saturday, May 17th 2025, 1:51:18 pm                           *
  * Author: Prakersh Arya <prakersharya@codestax.ai>                            *
  * -----                                                                       *
- * Last Modified: July 13th 2025, 6:45:20 pm                                   *
+ * Last Modified: July 13th 2025, 7:51:01 pm                                   *
  * Modified By: Prakersh Arya                                                  *
  * -----                                                                       *
  * Any app that can be written in JavaScript,                                  *
@@ -40,43 +40,79 @@
  * Date         By  Comments                                                   *
  * --------------------------------------------------------------------------- *
  */
-const algoliasearch = require('algoliasearch');
-const { configObject } = require('../config');
 const axios = require('axios');
 class SendBirdHelper {
     constructor() {
 
-        this.SENDBIRD_APP_ID = 'BE6E59B3-11F9-46DE-9F0B-3141787EB742';
-        this.SENDBIRD_API_TOKEN = 'b3e5d28ba5ff53a08eab27044dc1aad8d19dc1b5';
-        this.ALGOLIA_INDEX_NAME = process.env.ALGOLIA_INDEX_NAME;
-        this.algoliaClient = algoliasearch.algoliasearch(process.env.ALGOLIA_APP_ID, process.env.ALGOLIA_WRITE_API_KEY);
+        this.SENDBIRD_APP_ID = process.env.SENDBIRD_APP_ID;
+        this.SENDBIRD_API_TOKEN = process.env.SENDBIRD_API_TOKEN;
     }
 
-    async insertRecord(allRecords) {
-        const url = `https://api-${this.SENDBIRD_APP_ID}.sendbird.com/v3/users`;
+async insertRecord(allRecords) {
+    const userUrl = `https://api-${this.SENDBIRD_APP_ID}.sendbird.com/v3/users`;
+    const channelUrl = `https://api-${this.SENDBIRD_APP_ID}.sendbird.com/v3/group_channels`;
 
-        for (const record of allRecords) {
-            const { user_id, nickname, profile_url } = record.sendBirdItem;
+    for (const record of allRecords) {
+        const { recordType, sendBirdItem } = record;
+
+        if (recordType === 'PROGRAM') {
+            // Extract values from sendBirdItem
+            const {
+                name,
+                cover_url,
+                is_distinct = false,
+                is_public = true,
+                user_ids,
+                operator_ids
+            } = sendBirdItem;
 
             try {
                 const response = await axios.post(
-                    url,
+                    channelUrl,
+                    {
+                        name,
+                        cover_url,
+                        is_distinct,
+                        is_public,
+                        user_ids,
+                        operator_ids,
+                    },
+                    {
+                        headers: {
+                            'Api-Token': this.SENDBIRD_API_TOKEN,
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                );
+
+                console.log(`Channel created: ${response.data.channel_url}`);
+            } catch (error) {
+                console.error(`Failed to create channel for program '${name}'`, error.response?.data || error.message);
+            }
+
+        } else {
+            // Create user (default flow)
+            const { user_id, nickname, profile_url } = sendBirdItem;
+
+            try {
+                const response = await axios.post(
+                    userUrl,
                     {
                         user_id,
                         nickname: nickname || user_id,
                         profile_url: profile_url || '',
                     },
                     {
-                    headers: {
-                        'Api-Token': this.SENDBIRD_API_TOKEN,
-                        'Content-Type': 'application/json',
-                    },
+                        headers: {
+                            'Api-Token': this.SENDBIRD_API_TOKEN,
+                            'Content-Type': 'application/json',
+                        },
                     }
                 );
 
                 console.log(`User created: ${user_id}`);
             } catch (error) {
-                if (error.response && error.response.status === 400 && error.response.data.code === 400201) {
+                if (error.response?.status === 400 && error.response.data.code === 400201) {
                     console.log(`User already exists: ${user_id}`);
                 } else {
                     console.error(`Failed to create user ${user_id}`, error.response?.data || error.message);
@@ -84,28 +120,8 @@ class SendBirdHelper {
             }
         }
     }
+}
 
-    async deleteRecords(allRecords) {
-        const algoliaData = {
-            [configObject.USER_TABLE.indexValue]: [],
-            [configObject.PROGRAM_TABLE.indexValue]: []
-        };
 
-        allRecords.forEach(element => {
-            // Expecting `objectID` field in algoliaItem
-            if (element?.algoliaIndex && element?.algoliaItem?.objectID) {
-                algoliaData[element.algoliaIndex].push(element.algoliaItem.objectID);
-            }
-        });
-        const allPromise = [];
-        Object.keys(algoliaData).forEach((key) => {
-            if (algoliaData[key].length > 0) {
-                console.log(`Deleting from index ${key}:`, algoliaData[key]);
-                const index = this.algoliaClient.initIndex(key);
-                allPromise.push(index.deleteObjects(algoliaData[key]));
-            }
-        });
-        await Promise.all(allPromise);
-    }
 }
 module.exports = new SendBirdHelper();

@@ -27,10 +27,10 @@
  *                                                                             *
  * File: /helper/insertHelper.js                                               *
  * Project: identifymesearch                                                   *
- * Created Date: Saturday, May 17th 2025, 1:32:16 pm                           *
+ * Created Date: Sunday, July 13th 2025, 6:58:53 pm                            *
  * Author: Prakersh Arya <prakersharya@codestax.ai>                            *
  * -----                                                                       *
- * Last Modified: July 13th 2025, 6:27:06 pm                                   *
+ * Last Modified: July 13th 2025, 7:35:59 pm                                   *
  * Modified By: Prakersh Arya                                                  *
  * -----                                                                       *
  * Any app that can be written in JavaScript,                                  *
@@ -41,9 +41,12 @@
  * --------------------------------------------------------------------------- *
  */
 
+
+
 const userHelper = require('./userHelper');
 const { configObject } = require('../config');
 const programHelper = require('./programHelper');
+const courseHelper = require('./courseHelper');
 class InsertHelper {
 
     routeRequestToHelper(image) {
@@ -52,12 +55,15 @@ class InsertHelper {
         } else if (image.tableName == configObject.PROGRAM_TABLE.tableName) {
             return programHelper.getRecord(image);
         }
+        else if (image.tableName == configObject.COURSE_TABLE.tableName) {
+            return courseHelper.getRecord(image);
+        }
     }
     routeRequestToSendBirdHelper(image) {
         if (image.tableName == configObject.USER_TABLE.tableName) {
             return userHelper.getSendBirdRecord(image);
         } else if (image.tableName == configObject.PROGRAM_TABLE.tableName) {
-            return programHelper.getRecord(image);
+            return programHelper.getSendBirdRecord(image);
         }
     }
 

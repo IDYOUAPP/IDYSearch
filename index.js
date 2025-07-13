@@ -27,10 +27,10 @@
  *                                                                             *
  * File: /index.js                                                             *
  * Project: identifymesearch                                                   *
- * Created Date: Saturday, May 17th 2025, 1:09:39 pm                           *
+ * Created Date: Sunday, July 13th 2025, 6:58:53 pm                            *
  * Author: Prakersh Arya <prakersharya@codestax.ai>                            *
  * -----                                                                       *
- * Last Modified: July 13th 2025, 6:37:50 pm                                   *
+ * Last Modified: July 13th 2025, 7:22:48 pm                                   *
  * Modified By: Prakersh Arya                                                  *
  * -----                                                                       *
  * Any app that can be written in JavaScript,                                  *
@@ -40,6 +40,8 @@
  * Date         By  Comments                                                   *
  * --------------------------------------------------------------------------- *
  */
+
+
 require('dotenv').config();
 const { unmarshall } = require("@aws-sdk/util-dynamodb");
 const InsertHelper = require('./helper/insertHelper');
@@ -47,52 +49,70 @@ const algoliaHelper = require('./helper/algoliaHelper');
 const sendBirdHelper = require('./helper/sendBirdHelper');
 
 const handler = async (event) => {
-    console.log('came', event)
-    let algoliaItem = {
-        'INSERT': [],
-        'DELETE': []
-      };
-    let sendBirdItem = {
-        'INSERT': [],
-        'DELETE': []
-      };
-    for (const record of event.Records) {
-     
-      
-      const eventName = record.eventName; 
-      const arn = record.eventSourceARN;
-      const tableName = arn.split('/')[1]; 
-      const newImage = record.dynamodb.NewImage
-        ? unmarshall(record.dynamodb.NewImage)
-        : {};
-      const oldImage = record.dynamodb.OldImage
-        ? unmarshall(record.dynamodb.OldImage)
-        : {};
-  
-      newImage['tableName'] = tableName;
-      oldImage['tableName'] = tableName;  
-      
-      try {
-        switch (eventName) {
-          case "INSERT":
-          case "MODIFY":
-            algoliaItem['INSERT'].push(InsertHelper.routeRequestToHelper(newImage));
-            sendBirdItem['INSERT'].push(InsertHelper.routeRequestToSendBirdHelper(newImage));
-            break;
-          case "REMOVE":
-            algoliaItem['DELETE'].push(InsertHelper.routeRequestToHelper(oldImage));
-            break;
-        }
-      } catch (error) {
-        console.error(`Algolia sync failed for event ${eventName}:`, error);
-      }
-    }
+  console.log('Received event:', JSON.stringify(event, null, 2));
 
-    await algoliaHelper.insertRecord(algoliaItem['INSERT']);
-    await sendBirdHelper.insertRecord(sendBirdItem['INSERT']);
-    
-
-    return { statusCode: 200 };
+  const algoliaItem = {
+    INSERT: [],
+    DELETE: []
   };
-  
-  module.exports = { handler }
+
+  let sendBirdItem = {
+      'INSERT': [],
+      'DELETE': []
+    };
+  for (const record of event.Records) {
+    const { eventName, eventSourceARN, dynamodb } = record;
+
+    const tableName = eventSourceARN.split('/')[1];
+    const newImage = dynamodb.NewImage ? unmarshall(dynamodb.NewImage) : null;
+    const oldImage = dynamodb.OldImage ? unmarshall(dynamodb.OldImage) : null;
+
+    if (newImage) newImage.tableName = tableName;
+    if (oldImage) oldImage.tableName = tableName;
+
+    try {
+      switch (eventName) {
+        case "INSERT":
+        case "MODIFY":
+          if (newImage) {
+            const insertPayload = InsertHelper.routeRequestToHelper(newImage);
+            const insertPayloadSendBird = InsertHelper.routeRequestToSendBirdHelper(newImage);
+            if (insertPayload) algoliaItem.INSERT.push(insertPayload);
+            if (insertPayloadSendBird) sendBirdItem.INSERT.push(insertPayloadSendBird);
+          }
+          break;
+        case "REMOVE":
+          if (oldImage) {
+            const deletePayload = InsertHelper.routeRequestToHelper(oldImage);
+            if (deletePayload) algoliaItem.DELETE.push(deletePayload);
+          }
+          break;
+
+        default:
+          console.warn(`Unsupported event type: ${eventName}`);
+      }
+    } catch (error) {
+      console.error(`Algolia sync failed for event ${eventName}:`, error);
+    }
+  }
+
+  // Sync with Algolia
+  try {
+    if (algoliaItem.INSERT.length > 0) {
+      await algoliaHelper.insertRecord(algoliaItem.INSERT);
+    }
+    if (sendBirdItem.INSERT.length > 0) {
+      await sendBirdHelper.insertRecord(sendBirdItem.INSERT);
+    }
+    if (algoliaItem.DELETE.length > 0) {
+      await algoliaHelper.deleteRecords(algoliaItem.DELETE);
+    }
+  } catch (error) {
+    console.error("Algolia operation failed:", error);
+    return { statusCode: 500, body: "Failed to sync with Algolia." };
+  }
+
+  return { statusCode: 200, body: "Sync successful." };
+};
+
+module.exports = { handler };

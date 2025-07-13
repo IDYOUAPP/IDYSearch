@@ -27,10 +27,10 @@
  *                                                                             *
  * File: /helper/userHelper.js                                                 *
  * Project: identifymesearch                                                   *
- * Created Date: Saturday, May 17th 2025, 1:10:32 pm                           *
+ * Created Date: Sunday, July 13th 2025, 6:58:53 pm                            *
  * Author: Prakersh Arya <prakersharya@codestax.ai>                            *
  * -----                                                                       *
- * Last Modified: July 13th 2025, 6:48:26 pm                                   *
+ * Last Modified: July 13th 2025, 7:38:21 pm                                   *
  * Modified By: Prakersh Arya                                                  *
  * -----                                                                       *
  * Any app that can be written in JavaScript,                                  *
@@ -40,6 +40,8 @@
  * Date         By  Comments                                                   *
  * --------------------------------------------------------------------------- *
  */
+
+
 
 const { configObject } = require("../config");
 const { encryptData, generateSHA256Hash } = require("./encryptionHelper");
@@ -59,7 +61,7 @@ class UserHelper {
         });
         obj = {
             fullName: dynamoDBRecord.firstName + dynamoDBRecord.lastName,
-            userType: 'MENTOR',
+            recordType: 'MENTOR',
             profilePicture: dynamoDBRecord.profilePicture,
             objectID,
             dataAddress
@@ -89,32 +91,40 @@ class UserHelper {
     generateMenteeData(dynamoDBRecord) {
         let obj = {};
         let objectID = '';
-        objectID = encryptData({
+        let dataAddress = '';
+        objectID = generateSHA256Hash(dynamoDBRecord.pk + dynamoDBRecord.sk);
+        dataAddress = encryptData({
             pk: dynamoDBRecord.pk,
             sk: dynamoDBRecord.sk,
             tableName: dynamoDBRecord.tableName
         });
         obj = {
             fullName: dynamoDBRecord.firstName + dynamoDBRecord.lastName,
-            userType: 'MENTEE',
-            profilePicture: dynamoDBRecord.profilePicture,
-            objectID
+            recordType: 'MENTEE',
+            profilePicture: dynamoDBRecord.profileUrl,
+            objectID,
+            dataAddress
         }
         return obj;
     }
 
     getRecord(dynamoDBRecord) {
         let algoliaDocument = {};
-        if (dynamoDBRecord.sk == 'MENTOR') {
+        if (dynamoDBRecord.sk === 'MENTOR') {
             algoliaDocument = this.generateMentorData(dynamoDBRecord);
-        } else if (dynamoDBRecord.sk == 'MENTEE') {
+        } else if (dynamoDBRecord.sk === 'MENTEE') {
             algoliaDocument = this.generateMenteeData(dynamoDBRecord);
+        } else {
+            console.error(`Record type not matched. Unexpected sk: '${dynamoDBRecord.sk}'`, dynamoDBRecord);
+            return null;
         }
+
         return {
             algoliaItem: algoliaDocument,
             algoliaIndex: this.algoliaIndex
         };
     }
+
 
     getSendBirdRecord(dynamoDBRecord) {
         let sendBirdDocument = {};
@@ -125,6 +135,7 @@ class UserHelper {
         }
         return {
             sendBirdItem: sendBirdDocument,
+            recordType: 'USERS'
         };
     }
 }
