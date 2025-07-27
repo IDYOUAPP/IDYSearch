@@ -133,6 +133,7 @@ class SendBirdHelper {
             if (recordType === 'PROGRAM') {
                 if (sendBirdItem.channel_url) {
                     await this.updateProgram(sendBirdItem.channel_url, sendBirdItem);
+                    console.log(`Channel updated: ${sendBirdItem.channel_url}`);
                 } else {
                     try {
                         const response = await axios.post(
@@ -152,6 +153,7 @@ class SendBirdHelper {
                     if (!updateSuccess) {
                         console.error(`Failed to update user ${sendBirdItem.user_id}`);
                     }
+                    console.log(`User updated: in sendbird ${sendBirdItem.user_id}`);
                 }
                 else {
                     try {
@@ -164,7 +166,7 @@ class SendBirdHelper {
                             },
                             { headers: { 'Api-Token': this.SENDBIRD_API_TOKEN } }
                         );
-                        console.log(`User created: ${user_id}`);
+                        console.log(`User created in send bird: ${user_id}`);
                     } catch (error) {
                         if (error.response?.data?.code === 400202) {
                             console.log(`User already exists: ${user_id}.`);
