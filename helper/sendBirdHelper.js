@@ -70,12 +70,7 @@ async insertRecord(allRecords) {
                 const response = await axios.post(
                     channelUrl,
                     {
-                        name,
-                        cover_url,
-                        is_distinct,
-                        is_public,
-                        user_ids,
-                        operator_ids,
+                        ...sendBirdItem
                     },
                     {
                         headers: {

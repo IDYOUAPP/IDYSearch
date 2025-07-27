@@ -59,7 +59,7 @@ const handler = async (event) => {
   let sendBirdItem = {
       'INSERT': [],
       'DELETE': []
-    };
+  };
   for (const record of event.Records) {
     const { eventName, eventSourceARN, dynamodb } = record;
 
@@ -87,7 +87,6 @@ const handler = async (event) => {
             if (deletePayload) algoliaItem.DELETE.push(deletePayload);
           }
           break;
-
         default:
           console.warn(`Unsupported event type: ${eventName}`);
       }
