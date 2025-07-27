@@ -130,7 +130,6 @@ class SendBirdHelper {
         const channelUrl = `https://api-${this.SENDBIRD_APP_ID}.sendbird.com/v3/group_channels`;
         for (const record of allRecords) {
             const { recordType, sendBirdItem } = record;
-
             if (recordType === 'PROGRAM') {
                 if (sendBirdItem.channel_url) {
                     await this.updateProgram(sendBirdItem.channel_url, sendBirdItem);
@@ -148,25 +147,33 @@ class SendBirdHelper {
                 }
             } else {
                 const { user_id, nickname, profile_url } = sendBirdItem;
-                try {
-                    await axios.post(
-                        userUrl,
-                        {
-                            user_id,
-                            nickname: nickname || user_id,
-                            profile_url: profile_url || '',
-                        },
-                        { headers: { 'Api-Token': this.SENDBIRD_API_TOKEN } }
-                    );
-                    console.log(`User created: ${user_id}`);
-                } catch (error) {
-                    if (error.response?.data?.code === 400201) {
-                        console.log(`User already exists: ${user_id}. Attempting to update.`);
-                        await this.updateUser(user_id, { nickname, profile_url });
-                    } else {
-                        console.error(`Failed to create user ${user_id}`, error.response?.data || error.message);
+                if (sendBirdItem.user_id) {
+                    const updateSuccess = await this.updateUser(sendBirdItem.user_id, sendBirdItem);
+                    if (!updateSuccess) {
+                        console.error(`Failed to update user ${sendBirdItem.user_id}`);
                     }
                 }
+                else {
+                    try {
+                        await axios.post(
+                            userUrl,
+                            {
+                                user_id,
+                                nickname: nickname || user_id,
+                                profile_url: profile_url || '',
+                            },
+                            { headers: { 'Api-Token': this.SENDBIRD_API_TOKEN } }
+                        );
+                        console.log(`User created: ${user_id}`);
+                    } catch (error) {
+                        if (error.response?.data?.code === 400202) {
+                            console.log(`User already exists: ${user_id}.`);
+                        } else {
+                            console.error(`Failed to create user ${user_id}`, error.response?.data || error.message);
+                        }
+                    }
+                }
+
             }
         }
     }
