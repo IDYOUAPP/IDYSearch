@@ -62,6 +62,7 @@ class UserHelper {
         obj = {
             fullName: dynamoDBRecord.firstName + dynamoDBRecord.lastName,
             recordType: 'MENTOR',
+            status: dynamoDBRecord.status,
             profilePicture: dynamoDBRecord.profilePicture,
             objectID,
             dataAddress
@@ -101,6 +102,7 @@ class UserHelper {
         obj = {
             fullName: dynamoDBRecord.firstName + dynamoDBRecord.lastName,
             recordType: 'MENTEE',
+            status: dynamoDBRecord.status,
             profilePicture: dynamoDBRecord.profileUrl,
             objectID,
             dataAddress
