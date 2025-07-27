@@ -77,7 +77,7 @@ class ProgramHelper {
         let objectID = '';
         obj = {
             "name": dynamoDBRecord.programName,
-            // "channel_url": "private_chat_room_424",
+            "channel_url": dynamoDBRecord.programID,
             "cover_url": `${process.env.CLOUDFRONT_IMAGE_URL}/${dynamoDBRecord.programURL}`,
             "is_distinct": false,
             "is_public": true,
